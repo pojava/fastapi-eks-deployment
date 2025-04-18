@@ -20,6 +20,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      - name: Install eksctl
+        run: |
+          curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/v0.139.0/eksctl_Linux_amd64.tar.gz" | tar xz -C /tmp
+          sudo mv /tmp/eksctl /usr/local/bin
+
       - name: Set up kubectl
         uses: azure/setup-kubectl@v1
 
@@ -28,5 +33,4 @@ jobs:
           eksctl utils write-kubeconfig --region us-east-1 --cluster fastapi-cluster
           kubectl apply -f fastapi-deployment.yaml
           kubectl apply -f fastapi-service.yaml
-          kubectl apply -f fastapi-ingress.yaml
 
