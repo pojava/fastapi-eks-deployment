@@ -10,9 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository code
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Step 2: Set up AWS CLI with AWS credentials from GitHub secrets
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -20,13 +22,21 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      # Step 3: Install eksctl
+      - name: Install eksctl
+        run: |
+          curl --silent --location "https://github.com/weaveworks/eksctl/releases/download/v0.139.0/eksctl_Linux_amd64.tar.gz" | tar xz -C /tmp
+          sudo mv /tmp/eksctl /usr/local/bin
+
+      # Step 4: Set up kubectl
       - name: Set up kubectl
         uses: azure/setup-kubectl@v1
 
+      # Step 5: Deploy to EKS (configure kubeconfig and apply manifests)
       - name: Deploy to EKS
         run: |
           eksctl utils write-kubeconfig --region us-east-1 --cluster fastapi-cluster
-          kubectl apply -f deployment.yaml
-          kubectl apply -f service.yaml
-          kubectl apply -f ingress.yaml
+          kubectl apply -f fastapi-deployment.yaml
+          kubectl apply -f fastapi-service.yaml
+          kubectl apply -f fastapi-ingress.yaml
 
